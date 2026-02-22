@@ -1,39 +1,85 @@
 #!/bin/bash
 
-# ===== CONFIGURATION =====
-PROJECT="/Users/yourusername/Path/To/Your/Project"
-# Example:
-# PROJECT="/Users/sandeep/Documents/sem6"
+LOGFILE="$HOME/sem6_sync_macos.log"
+REPO_PATH="/Users/yourusername/Path/To/Your/Project"  # <-- CHANGE THIS
 
-echo "------ GIT SYNC START ------"
+exec > >(tee -a "$LOGFILE") 2>&1
 
-# Check internet connectivity
-ping -c 1 github.com > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "No internet connection. Sync cancelled."
+echo "======================================="
+echo "SEM6 SYNC START - $(date)"
+echo "======================================="
+
+# Check Git installed
+if ! command -v git &> /dev/null; then
+    echo "Git not installed."
+    read -p "Press Enter to exit..."
     exit 1
 fi
 
-cd "$PROJECT" || exit 1
+# Move to repo
+cd "$REPO_PATH" || {
+    echo "Repo path invalid: $REPO_PATH"
+    read -p "Press Enter..."
+    exit 1
+}
 
-echo "Pulling latest changes..."
+# Confirm Git repo
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Not a git repository."
+    read -p "Press Enter..."
+    exit 1
+fi
+
+# Safe configuration
+git config core.fileMode false
+git config core.autocrlf false
+git config pull.rebase true
+
+# Refresh index
+git update-index -q --refresh
+
+# Detect local changes
+if ! git diff-index --quiet HEAD --; then
+    echo "Local changes detected. Committing..."
+    git add .
+    git commit -m "auto-sync: $(date +'%Y-%m-%d %H:%M')"
+    if [ $? -ne 0 ]; then
+        echo "Commit failed."
+        read -p "Press Enter..."
+        exit 1
+    fi
+fi
+
+# Fetch
+echo "Fetching remote..."
+git fetch
+if [ $? -ne 0 ]; then
+    echo "Fetch failed."
+    read -p "Press Enter..."
+    exit 1
+fi
+
+# Pull (rebase)
+echo "Rebasing..."
 git pull --rebase
 if [ $? -ne 0 ]; then
-    echo "Pull failed. Possible conflict. Fix manually."
+    echo "Rebase conflict detected."
+    echo "Resolve conflicts and run again."
+    read -p "Press Enter..."
     exit 1
 fi
 
-echo "Adding changes..."
-git add .
-
-if ! git diff --cached --quiet; then
-    echo "Committing changes..."
-    git commit -m "Manual sync $(date)"
-    echo "Pushing to GitHub..."
-    git push
-    echo "Sync completed successfully."
-else
-    echo "No changes to commit."
+# Push
+echo "Pushing..."
+git push
+if [ $? -ne 0 ]; then
+    echo "Push failed."
+    read -p "Press Enter..."
+    exit 1
 fi
 
-echo "------ GIT SYNC END ------"
+echo "======================================="
+echo "SYNC SUCCESSFUL"
+echo "======================================="
+
+read -p "Press Enter to close..."
