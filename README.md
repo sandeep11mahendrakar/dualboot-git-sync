@@ -1,157 +1,117 @@
-🚀 DualBoot Git Sync
+# 🚀 DualBoot Git Sync
 
-A safe, deterministic, one-click Git synchronization utility designed for dual-boot developers (Linux + Windows + macOS).
+> **A safe, deterministic, one-click Git synchronization utility designed for dual-boot developers (Linux + Windows + macOS).**
 
-This tool standardizes your workflow across operating systems and prevents common sync errors.
+This tool standardizes your workflow across operating systems and prevents common sync errors by enforcing a **Rebase-First** strategy.
 
-🎯 Problem Statement
+---
 
-Dual-boot development introduces recurring issues:
+## 🎯 The Problem
 
-Forgetting to pull before working
+Dual-boot development often leads to high-friction synchronization issues:
 
-Conflicts caused by unsynced edits
+* **Amnesia:** Forgetting to `pull` before starting work on a different OS.
+* **Merge Hell:** Conflicts caused by unsynced edits across partitions.
+* **Repetitive Tasks:** Typing the same 4-5 Git commands every time you switch.
+* **Permission Noise:** NTFS partitions often mess up executable bits and file permissions.
 
-Repetitive Git commands
+## ✅ The Solution
 
-Inconsistent Git configurations across OS
+**DualBoot Git Sync** provides a controlled, explicit synchronization model. Each sync operation performs a strict sequence:
 
-File permission noise (especially NTFS)
+1. `git pull --rebase` (Fetch and align)
+2. `git add .` (Stage all changes)
+3. `git commit` (Only if changes exist)
+4. `git push` (Update remote)
 
-Manual synchronization increases friction and error probability.
+---
 
-✅ Solution
+## 🧠 Design Philosophy
 
-DualBoot Git Sync provides a controlled, explicit synchronization model:
+| **We Do Not** | **We Do** |
+| --- | --- |
+| ❌ No automatic push on shutdown | ✅ Manual explicit synchronization |
+| ❌ No hidden background services | ✅ Dirty state detection |
+| ❌ No silent "ghost" commits | ✅ Rebase-first workflow |
+| ❌ No automation without consent | ✅ Cross-platform parity |
 
-Each sync operation performs:
+---
 
-git pull --rebase
+## 📂 Project Structure
 
-git add .
-
-git commit (only if changes exist)
-
-git push
-
-All triggered intentionally by the developer.
-
-No background automation. No silent commits.
-
-🧠 Design Philosophy
-
-❌ No automatic push on shutdown
-
-❌ No hidden background services
-
-✅ Manual explicit sync
-
-✅ Dirty state detection
-
-✅ Rebase-first workflow
-
-✅ Conflict visibility
-
-✅ Cross-platform parity
-
-✅ NTFS-safe configuration
-
-The developer remains in full control.
-
-📂 Project Structure
+```text
 dualboot-git-sync/
 ├── linux/
-│   └── sem6_sync.sh
+│   └── sem6_sync.sh        # Bash script for Linux
 ├── windows/
-│   └── sem6_sync.bat
+│   └── sem6_sync.bat       # Batch script for Windows
 ├── macos/
-│   └── sem6_sync.command
+│   └── sem6_sync.command   # Upgraded macOS command script
 └── README.md
-🐧 Linux Setup
 
-Edit REPO_PATH inside sem6_sync.sh
+```
 
-Make executable:
+---
 
-chmod +x sem6_sync.sh
+## 🔧 Installation & Setup
 
-(Optional) Create .desktop launcher.
+### 🐧 Linux
 
-🪟 Windows Setup
+1. Edit `REPO_PATH` inside `linux/sem6_sync.sh`.
+2. Make it executable:
+```bash
+chmod +x linux/sem6_sync.sh
 
-Edit REPO_PATH inside sem6_sync.bat
+```
 
-Create desktop shortcut
 
-(Optional) Assign custom .ico icon
+3. *(Optional)* Create a `.desktop` launcher for your dock.
 
-🍎 macOS Setup
+### 🪟 Windows
 
-Edit REPO_PATH inside sem6_sync.command
+1. Edit `REPO_PATH` inside `windows/sem6_sync.bat`.
+2. Create a Desktop shortcut to the `.bat` file.
+3. *(Optional)* Right-click **Properties > Change Icon** to use a custom `.ico`.
 
-Make executable:
+### 🍎 macOS
 
-chmod +x sem6_sync.command
+1. Edit `REPO_PATH` inside `macos/sem6_sync.command`.
+2. Make it executable:
+```bash
+chmod +x macos/sem6_sync.command
 
-Double-click to run
-(First time: allow via Security & Privacy if blocked)
+```
 
-🔁 Recommended Workflow
 
-On any OS:
+3. **First run:** Right-click and select **Open** (to bypass Security & Privacy gatekeeper).
 
-Before serious work → Click Sync
+---
 
-After finishing work → Click Sync
+## 🔁 Recommended Workflow
 
-Never edit on both OS without syncing first.
+To maintain a perfect history without conflicts, follow the **"Sync-In, Sync-Out"** rule:
 
-⚠ Conflict Handling
+1. **Boot OS:** Click **Sync** before you write a single line of code.
+2. **Code:** Work as usual.
+3. **Shutdown/Switch:** Click **Sync** once more before rebooting.
 
-If both OS modify the same file without syncing:
+> [!WARNING]
+> **Conflict Handling:** If you modify the same file on two different OS without syncing, Git will pause during the **Rebase**. You must manually resolve the conflict. No data is ever silently overwritten.
 
-Git will pause during rebase
+---
 
-You manually resolve conflicts
+## 🏗 Architecture
 
-No data loss
+```mermaid
+graph LR
+    A[🐧 Linux] <--> B(☁️ GitHub / Source of Truth)
+    C[🪟 Windows] <--> B
+    D[🍎 macOS] <--> B
 
-No silent overwrites
+```
 
-🏗 Architecture
-Linux --------─┐
-               ├── GitHub (source of truth)
-Windows ------─┤
-macOS --------─┘
+---
 
-Each OS:
+## 🛡️ License
 
-Pulls before work
-
-Pushes after work
-
-📌 Ideal Use Cases
-
-Dual-boot development
-
-Cross-platform coding workflows
-
-Academic environments
-
-Personal productivity optimization
-
-Now let’s fix your macOS script properly.
-
-Your current macOS script is basic. It does not:
-
-Validate Git
-
-Handle dirty state robustly
-
-Handle dual-boot newline issues
-
-Fail safely
-
-Log activity
-
-Let’s upgrade it.
+Distributed under the MIT License. See `LICENSE` for more information.
