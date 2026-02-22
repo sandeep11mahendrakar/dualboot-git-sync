@@ -1,39 +1,78 @@
 #!/bin/bash
 
-# ===== CONFIGURATION =====
-PROJECT="/path/to/your/project"
-# Example:
-# PROJECT="/home/username/Downloads/pes/sem 6"
+LOGFILE="$HOME/sem6_sync.log"
+REPO_PATH="path/to/your/folder"   # <-- CHANGE THIS
 
-echo "------ GIT SYNC START ------"
+exec > >(tee -a "$LOGFILE") 2>&1
 
-# Check internet connectivity
-ping -c 1 github.com > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "No internet connection. Sync cancelled."
+echo "======================================="
+echo "SEM6 SYNC START - $(date)"
+echo "======================================="
+
+# Safety: check git installed
+if ! command -v git &> /dev/null; then
+    echo "Git not installed."
+    read -p "Press Enter to exit..."
     exit 1
 fi
 
-cd "$PROJECT" || exit 1
+# Move to repo
+cd "$REPO_PATH" || {
+    echo "Repo path invalid."
+    read -p "Press Enter to exit..."
+    exit 1
+}
 
-echo "Pulling latest changes..."
-git pull --rebase
-if [ $? -ne 0 ]; then
-    echo "Pull failed. Possible conflict. Fix manually."
+# Confirm it's a git repo
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Not a git repository."
+    read -p "Press Enter to exit..."
     exit 1
 fi
 
-echo "Adding changes..."
-git add .
+# Fix dual boot permission noise
+git config core.fileMode false
+git config pull.rebase true
 
-if ! git diff --cached --quiet; then
-    echo "Committing changes..."
-    git commit -m "Manual sync $(date)"
-    echo "Pushing to GitHub..."
-    git push
-    echo "Sync completed successfully."
-else
-    echo "No changes to commit."
+# Refresh index (prevents false changes)
+git update-index -q --refresh
+
+# Detect local changes
+if ! git diff-index --quiet HEAD --; then
+    echo "Local changes detected."
+    git add .
+
+    if ! git commit -m "Auto-sync commit $(date +'%Y-%m-%d %H:%M:%S')"; then
+        echo "Commit failed."
+        read -p "Press Enter to exit..."
+        exit 1
+    fi
 fi
 
-echo "------ GIT SYNC END ------"
+echo "Fetching remote..."
+if ! git fetch; then
+    echo "Fetch failed."
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "Rebasing..."
+if ! git pull --rebase; then
+    echo "Rebase conflict detected."
+    echo "Fix conflicts manually, then run sync again."
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "Pushing..."
+if ! git push; then
+    echo "Push failed."
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "======================================="
+echo "SYNC SUCCESSFUL"
+echo "======================================="
+
+sleep 2   # auto-close after 2 seconds on success
