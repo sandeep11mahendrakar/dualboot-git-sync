@@ -115,6 +115,7 @@ graph LR
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
 This project is licensed under the Fair Source License.
 
 Personal & FOSS Use: 100% Free. You can use, modify, and redistribute this for your personal projects or open-source work.
