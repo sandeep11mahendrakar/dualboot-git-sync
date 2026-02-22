@@ -1,70 +1,100 @@
-# 🚀 DualBoot Git Sync
+🚀 DualBoot Git Sync
 
-A simple, safe, one-click Git synchronization system for developers using **dual-boot environments (Linux + Windows)**.
+A safe, deterministic, one-click Git synchronization utility designed for dual-boot developers (Linux + Windows + macOS).
 
-This tool automates:
+This tool standardizes your workflow across operating systems and prevents common sync errors.
 
-- `git pull --rebase`
-- `git add .`
-- `git commit` (only if changes exist)
-- `git push`
+🎯 Problem Statement
 
-All with a single click.
+Dual-boot development introduces recurring issues:
 
----
+Forgetting to pull before working
 
-## 🎯 Problem
+Conflicts caused by unsynced edits
 
-Developers working in dual-boot systems often face:
+Repetitive Git commands
 
-- Forgetting to pull before working
-- Conflicts from unsynced changes
-- Manual repetitive Git commands
-- SSH inconsistencies between OS environments
+Inconsistent Git configurations across OS
 
-This project provides a controlled, one-click sync workflow to eliminate friction.
+File permission noise (especially NTFS)
 
----
+Manual synchronization increases friction and error probability.
 
-## 🧠 Design Philosophy
+✅ Solution
 
-- ❌ No auto-push on shutdown (dangerous)
-- ❌ No hidden background automation
-- ✅ Explicit manual sync button
-- ✅ Safe conflict detection
-- ✅ Internet connectivity check
-- ✅ Cross-platform compatibility
+DualBoot Git Sync provides a controlled, explicit synchronization model:
 
----
+Each sync operation performs:
 
-## 📂 Project Structure
+git pull --rebase
 
+git add .
+
+git commit (only if changes exist)
+
+git push
+
+All triggered intentionally by the developer.
+
+No background automation. No silent commits.
+
+🧠 Design Philosophy
+
+❌ No automatic push on shutdown
+
+❌ No hidden background services
+
+✅ Manual explicit sync
+
+✅ Dirty state detection
+
+✅ Rebase-first workflow
+
+✅ Conflict visibility
+
+✅ Cross-platform parity
+
+✅ NTFS-safe configuration
+
+The developer remains in full control.
+
+📂 Project Structure
 dualboot-git-sync/
 ├── linux/
-│ └── sem6_sync.sh
+│   └── sem6_sync.sh
 ├── windows/
-│ └── sem6_sync.bat
+│   └── sem6_sync.bat
 ├── macos/
-│ └── sem6_sync.command
+│   └── sem6_sync.command
 └── README.md
+🐧 Linux Setup
 
---------------------------------------------------------------------------------------------
+Edit REPO_PATH inside sem6_sync.sh
 
-## 🐧 Linux Setup
+Make executable:
 
-1. Edit `PROJECT` path inside `sem6_sync.sh`
-2. Make executable:
-
-```bash
 chmod +x sem6_sync.sh
+
+(Optional) Create .desktop launcher.
 
 🪟 Windows Setup
 
-Edit the project path inside sem6_sync.bat
+Edit REPO_PATH inside sem6_sync.bat
 
-Create a desktop shortcut
+Create desktop shortcut
 
 (Optional) Assign custom .ico icon
+
+🍎 macOS Setup
+
+Edit REPO_PATH inside sem6_sync.command
+
+Make executable:
+
+chmod +x sem6_sync.command
+
+Double-click to run
+(First time: allow via Security & Privacy if blocked)
 
 🔁 Recommended Workflow
 
@@ -74,28 +104,25 @@ Before serious work → Click Sync
 
 After finishing work → Click Sync
 
-If work is temporary or experimental → Do not sync.
+Never edit on both OS without syncing first.
 
 ⚠ Conflict Handling
 
-If both operating systems modify the same file without syncing:
+If both OS modify the same file without syncing:
 
-Git will pause
+Git will pause during rebase
 
-You manually resolve the conflict
+You manually resolve conflicts
 
-No data is lost
+No data loss
 
 No silent overwrites
 
---------------------------------------------------------------------------------------------
 🏗 Architecture
-
 Linux --------─┐
-               ├── GitHub (central source of truth)
-Windows/macos -┘
-
-
+               ├── GitHub (source of truth)
+Windows ------─┤
+macOS --------─┘
 
 Each OS:
 
@@ -103,28 +130,28 @@ Pulls before work
 
 Pushes after work
 
-💡 Why Not Fully Automatic?
+📌 Ideal Use Cases
 
-Automatic background Git push can:
+Dual-boot development
 
-Push unfinished work
+Cross-platform coding workflows
 
-Fail during shutdown
+Academic environments
 
-Cause silent merge issues
+Personal productivity optimization
 
-This system keeps the developer in control.
+Now let’s fix your macOS script properly.
 
-📌 Use Cases
+Your current macOS script is basic. It does not:
 
-Dual boot development setups
+Validate Git
 
-Cross-platform coding environments
+Handle dirty state robustly
 
-Academic projects across OS
+Handle dual-boot newline issues
 
-Personal workflow optimization
+Fail safely
 
+Log activity
 
-
-
+Let’s upgrade it.
